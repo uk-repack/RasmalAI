@@ -71,6 +71,14 @@ data_mode = st.selectbox(
     ]
 )
 
+# ---------------- SLACK CHANNEL MAP ---------------- #
+
+slack_channels = {
+    "prod-incidents": "C0B5LPBQSDR",
+    "security-alerts": "C0B5WNUL6A0",
+    "backend-team": "C0B5V016BT3"
+}
+
 # ---------------- QUERY LOGIC ---------------- #
 
 if data_mode == "Security Advisories":
@@ -110,14 +118,29 @@ elif data_mode == "GitHub Issues":
     query_data = run_coral_query(query)
 
 elif data_mode == "Slack Intelligence":
+        
 
-    query = """
-    SELECT id, name, is_archived
-    FROM slack.channels
-    LIMIT 5
-    """
 
-    query_data = run_coral_query(query)
+        selected_channel = st.selectbox(
+        "Select Slack Channel",
+        list(slack_channels.keys())
+    )
+
+        channel_id = slack_channels[selected_channel]
+
+        query = f"""
+        SELECT
+            ts,
+            user_id,
+            text
+        FROM slack.messages(
+            channel => '{channel_id}'
+        )
+        ORDER BY ts DESC
+        LIMIT 10
+        """
+
+        query_data = run_coral_query(query)
 
 else:
 
