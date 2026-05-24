@@ -1,0 +1,4 @@
+user,alert,severity,timestamp
+john,"Potential secret exposure detected",High,2026-05-21
+mike,"Multiple failed login attempts",Critical,2026-05-22
+alice,"Unusual repository access",Medium,2026-05-22
