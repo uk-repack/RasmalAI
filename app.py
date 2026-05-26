@@ -3,48 +3,259 @@ import streamlit as st
 from groq import Groq
 import os
 from dotenv import load_dotenv
-import pandas as pd
-import plotly.express as px
+from datetime import datetime
 
-# Load environment variables
+# =========================================================
+# LOAD ENV
+# =========================================================
+
 load_dotenv()
 
-# Initialize Groq client
 client = Groq(
     api_key=os.getenv("GROQ_API_KEY")
 )
 
-# Streamlit page config
+# =========================================================
+# PAGE CONFIG
+# =========================================================
+
 st.set_page_config(
     page_title="RasmalAI",
-    page_icon="🛡️",
-    layout="wide"
+    page_icon="⚡",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# Custom styling
+# =========================================================
+# LOGO PATH
+# =========================================================
+
+logo_path = r"C:\Users\utkra\Downloads\WhatsApp Image 2026-05-25 at 12.36.03 AM.jpeg"
+
+# =========================================================
+# CUSTOM CSS
+# =========================================================
+
 st.markdown("""
 <style>
-    .main {
-        background-color: #0E1117;
-    }
 
-    h1, h2, h3 {
-        color: white;
-    }
+#MainMenu {
+    visibility: hidden;
+}
 
-    .stMetric {
-        background-color: #1E1E1E;
-        padding: 15px;
-        border-radius: 12px;
-    }
+footer {
+    visibility: hidden;
+}
 
-    .stCodeBlock {
-        border-radius: 12px;
-    }
+header {
+    visibility: hidden;
+}
+
+html, body, [class*="css"] {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #080808;
+    color: white;
+}
+
+/* ----------------------------------------------------- */
+/* MAIN */
+/* ----------------------------------------------------- */
+
+[data-testid="stAppViewContainer"] {
+    background-color: #080808;
+}
+
+[data-testid="stHeader"] {
+    background-color: #080808;
+    height: 0px;
+}
+
+.block-container {
+    padding-top: 1.4rem;
+    padding-bottom: 2rem;
+    background-color: #080808;
+}
+
+.main {
+    background-color: #080808 !important;
+}
+
+/* ----------------------------------------------------- */
+/* SIDEBAR */
+/* ----------------------------------------------------- */
+
+section[data-testid="stSidebar"] {
+    background-color: #0B0B0B;
+    border-right: 1px solid #1E1E1E;
+}
+
+section[data-testid="stSidebar"] img {
+    border-radius: 16px;
+}
+
+/* ----------------------------------------------------- */
+/* CARD */
+/* ----------------------------------------------------- */
+
+.rasmal-card {
+    background-color: #101010;
+    border: 1px solid #232323;
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 18px;
+}
+
+/* ----------------------------------------------------- */
+/* TITLES */
+/* ----------------------------------------------------- */
+
+.section-title {
+    color: #D6A84A;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+    margin-bottom: 14px;
+}
+
+/* ----------------------------------------------------- */
+/* BUTTONS */
+/* ----------------------------------------------------- */
+
+div.stButton > button {
+    background-color: #C89B3C;
+    color: black;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    padding: 0.7rem 1rem;
+    width: 100%;
+}
+
+div.stButton > button:hover {
+    background-color: #E6B85C;
+}
+
+/* ----------------------------------------------------- */
+/* INPUT */
+/* ----------------------------------------------------- */
+
+.stTextInput input {
+    background-color: #101010;
+    color: white;
+    border: 1px solid #2E2E2E;
+    border-radius: 10px;
+}
+
+/* ----------------------------------------------------- */
+/* LOG BOX */
+/* ----------------------------------------------------- */
+
+.log-box {
+    background-color: #0C0C0C;
+    border: 1px solid #232323;
+    border-radius: 16px;
+    padding: 18px;
+    min-height: 420px;
+    font-family: monospace;
+}
+
+/* ----------------------------------------------------- */
+/* EXECUTIVE SUMMARY */
+/* ----------------------------------------------------- */
+
+.summary-card {
+    background-color: #101010;
+    border-radius: 16px;
+    padding: 24px;
+    border-left: 6px solid #D6A84A;
+    border: 1px solid #232323;
+    margin-top: 10px;
+}
+
+.summary-critical {
+    border-left: 6px solid #ff4b4b;
+}
+
+.summary-high {
+    border-left: 6px solid #ff944d;
+}
+
+.summary-elevated {
+    border-left: 6px solid #D6A84A;
+}
+
+.summary-nominal {
+    border-left: 6px solid #4CAF50;
+}
+
+.summary-title {
+    font-size: 13px;
+    color: #999;
+    letter-spacing: 1px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.summary-value {
+    font-size: 44px;
+    font-weight: 800;
+    margin-bottom: 14px;
+}
+
+.summary-text {
+    color: #DDD;
+    line-height: 1.7;
+    font-size: 15px;
+}
+
+.action-card {
+    background-color: #151515;
+    border: 1px solid #262626;
+    border-radius: 12px;
+    padding: 14px;
+    margin-top: 12px;
+}
+
+.priority-tag {
+    color: #D6A84A;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+/* ----------------------------------------------------- */
+/* PULSE */
+/* ----------------------------------------------------- */
+
+.pulse-green {
+    color: #4CAF50;
+    animation: pulse 1.5s infinite;
+}
+
+.pulse-red {
+    color: #ff4b4b;
+    animation: pulse 1.2s infinite;
+}
+
+.pulse-gold {
+    color: #D6A84A;
+    animation: pulse 1.7s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.4; }
+    50% { opacity: 1; }
+    100% { opacity: 0.4; }
+}
+
 </style>
 """, unsafe_allow_html=True)
 
-# Function to run Coral SQL queries
+# =========================================================
+# CORAL QUERY
+# =========================================================
+
 def run_coral_query(query):
 
     result = subprocess.run(
@@ -53,25 +264,221 @@ def run_coral_query(query):
         text=True
     )
 
+    if result.stderr:
+        return f"ERROR:\n{result.stderr}"
+
     return result.stdout
 
-# ---------------- UI ---------------- #
+# =========================================================
+# AI LOGS
+# =========================================================
 
-st.title("🛡️ RasmalAI")
-st.subheader("Enterprise Security Intelligence Agent")
+def generate_dynamic_logs(data):
 
-# Intelligence Mode Selector
-data_mode = st.selectbox(
-    "Select Intelligence Mode",
-    [
-        "Security Advisories",
-        "GitHub Issues",
-        "Slack Intelligence",
-        "Incident Correlation"
-    ]
-)
+    logs = []
 
-# ---------------- SLACK CHANNEL MAP ---------------- #
+    timestamp = datetime.now().strftime("%H:%M:%S")
+
+    keyword_map = {
+        "authentication": (
+            "Authentication anomaly detected",
+            "warning"
+        ),
+        "rollback": (
+            "Rollback sequence correlated",
+            "warning"
+        ),
+        "critical": (
+            "Critical advisory escalation triggered",
+            "critical"
+        ),
+        "breach": (
+            "Potential security breach identified",
+            "critical"
+        ),
+        "exploit": (
+            "Exploit intelligence feed updated",
+            "critical"
+        ),
+        "failure": (
+            "Repeated operational failures detected",
+            "warning"
+        ),
+        "incident": (
+            "Incident correlation score increased",
+            "warning"
+        ),
+        "unauthorized": (
+            "Unauthorized access pattern detected",
+            "critical"
+        )
+    }
+
+    lowered = data.lower()
+
+    for key, value in keyword_map.items():
+
+        if key in lowered:
+
+            logs.append({
+                "time": timestamp,
+                "message": value[0],
+                "severity": value[1]
+            })
+
+    logs.append({
+        "time": timestamp,
+        "message": "Live intelligence synchronization active",
+        "severity": "normal"
+    })
+
+    logs.append({
+        "time": timestamp,
+        "message": "AI correlation engine operational",
+        "severity": "normal"
+    })
+
+    return logs
+
+# =========================================================
+# RISK CALCULATION
+# =========================================================
+
+def calculate_risk_score(
+    incident_mentions,
+    critical_count,
+    high_count
+):
+
+    score = (
+        incident_mentions * 15
+        + critical_count * 25
+        + high_count * 12
+    )
+
+    return min(score, 100)
+
+# =========================================================
+# HEADER
+# =========================================================
+
+header_left, header_right = st.columns([6, 2])
+
+with header_left:
+
+    logo_col, text_col = st.columns([1, 5])
+
+    with logo_col:
+
+        st.image(
+            logo_path,
+            width=90
+        )
+
+    with text_col:
+
+        st.markdown("""
+        <div style="padding-top:10px;">
+
+        <div style="
+            font-size:54px;
+            font-weight:800;
+            color:#E6C07B;
+            line-height:1;
+        ">
+        RasmalAI
+        </div>
+
+        <div style="
+            color:#F2F2F2;
+            font-size:24px;
+            margin-top:12px;
+            font-weight:500;
+        ">
+        AI-Powered Security Intelligence Command Center
+        </div>
+
+        <div style="
+            color:#777;
+            margin-top:8px;
+            font-size:13px;
+            letter-spacing:1px;
+        ">
+        PREMIUM INCIDENT CORRELATION & THREAT INTELLIGENCE PLATFORM
+        </div>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+with header_right:
+
+    current_time = datetime.now().strftime("%H:%M:%S")
+
+    st.markdown(f"""
+    <div style="
+        background-color:#101010;
+        border:1px solid #232323;
+        border-radius:16px;
+        padding:20px;
+        text-align:center;
+        margin-top:12px;
+    ">
+
+    <div style="
+        color:#4CAF50;
+        font-size:13px;
+        font-weight:700;
+        margin-bottom:10px;
+    ">
+    ● NODE_ACTIVE
+    </div>
+
+    <div style="
+        color:#E6C07B;
+        font-size:38px;
+        font-weight:800;
+    ">
+    {current_time}
+    </div>
+
+    <div style="
+        color:#777;
+        font-size:12px;
+        margin-top:6px;
+    ">
+    LIVE INTELLIGENCE SESSION
+    </div>
+
+    </div>
+    """, unsafe_allow_html=True)
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+# =========================================================
+# SIDEBAR
+# =========================================================
+
+with st.sidebar:
+
+    st.image(
+        logo_path,
+        width=180
+    )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    main_mode = st.radio(
+        "INTELLIGENCE MODES",
+        [
+            "GitHub Intelligence",
+            "Slack Intelligence",
+            "Incident Correlation"
+        ]
+    )
+
+# =========================================================
+# CHANNELS
+# =========================================================
 
 slack_channels = {
     "prod-incidents": "C0B5LPBQSDR",
@@ -79,310 +486,615 @@ slack_channels = {
     "backend-team": "C0B5V016BT3"
 }
 
-# ---------------- QUERY LOGIC ---------------- #
+query_data = ""
 
-if data_mode == "Security Advisories":
+# =========================================================
+# GITHUB
+# =========================================================
 
-    severity_filter = st.selectbox(
-        "Select Severity Level",
-        ["all", "critical", "high", "medium"]
-    )
+if main_mode == "GitHub Intelligence":
 
-    if severity_filter == "all":
+    with st.sidebar:
+
+        github_mode = st.radio(
+            "GITHUB SUBSYSTEM",
+            [
+                "Security Advisories",
+                "Threat Feed",
+                "Repository Monitoring"
+            ]
+        )
+
+    # -----------------------------------------------------
+    # SECURITY ADVISORIES
+    # -----------------------------------------------------
+
+    if github_mode == "Security Advisories":
 
         query = """
-        SELECT ghsa_id, summary, severity
-        FROM github.advisories
-        LIMIT 5
-        """
-
-    else:
-
-        query = f"""
-        SELECT ghsa_id, summary, severity
-        FROM github.advisories
-        WHERE severity = '{severity_filter}'
-        LIMIT 5
-        """
-
-    query_data = run_coral_query(query)
-
-elif data_mode == "GitHub Issues":
-
-    query = """
-    SELECT id, title, state
-    FROM github.issues
-    LIMIT 5
-    """
-
-    query_data = run_coral_query(query)
-
-elif data_mode == "Slack Intelligence":
-        
-
-
-        selected_channel = st.selectbox(
-        "Select Slack Channel",
-        list(slack_channels.keys())
-    )
-
-        channel_id = slack_channels[selected_channel]
-
-        query = f"""
         SELECT
-            ts,
-            user_id,
-            text
-        FROM slack.messages(
-            channel => '{channel_id}'
-        )
-        ORDER BY ts DESC
-        LIMIT 10
+            ghsa_id,
+            summary,
+            severity
+        FROM github.advisories
+        LIMIT 8
         """
 
         query_data = run_coral_query(query)
 
+    # -----------------------------------------------------
+    # THREAT FEED
+    # -----------------------------------------------------
+
+    elif github_mode == "Threat Feed":
+
+        query = """
+        SELECT
+            ghsa_id,
+            summary,
+            severity
+        FROM github.advisories
+        LIMIT 20
+        """
+
+        raw_query_data = run_coral_query(query)
+
+        filtered_lines = []
+
+        for line in raw_query_data.splitlines():
+
+            lowered = line.lower()
+
+            if (
+                "critical" in lowered
+                or "high" in lowered
+            ):
+                filtered_lines.append(line)
+
+        if filtered_lines:
+
+            query_data = "\n".join(filtered_lines)
+
+        else:
+
+            query_data = raw_query_data
+
+    # -----------------------------------------------------
+    # REPOSITORY MONITORING
+    # -----------------------------------------------------
+
+    else:
+
+        query = """
+        SELECT
+            title,
+            state,
+            repository__full_name,
+            html_url
+        FROM github.issues
+        LIMIT 10
+        """
+
+        # query_data = run_coral_query(query)
+
+    
+
+# =========================================================
+# SLACK
+# =========================================================
+
+elif main_mode == "Slack Intelligence":
+
+    with st.sidebar:
+
+        selected_channel = st.radio(
+            "SLACK FEEDS",
+            list(slack_channels.keys())
+        )
+
+    channel_id = slack_channels[selected_channel]
+
+    query = f"""
+    SELECT
+        ts,
+        user_id,
+        text
+    FROM slack.messages(
+        channel => '{channel_id}'
+    )
+    ORDER BY ts DESC
+    LIMIT 12
+    """
+
+    query_data = run_coral_query(query)
+
+# =========================================================
+# CORRELATION
+# =========================================================
+
 else:
 
     github_query = """
-    SELECT id, title, state
+    SELECT
+        ghsa_id,
+        summary,
+        severity
+    FROM github.advisories
+    LIMIT 6
+    """
+
+    repo_query = """
+    SELECT
+        title,
+        state,
+        repository__full_name,
+        html_url
     FROM github.issues
     LIMIT 5
     """
 
     slack_query = """
-    SELECT id, name, is_archived
-    FROM slack.channels
-    LIMIT 5
+    SELECT
+        ts,
+        user_id,
+        text
+    FROM slack.messages(
+        channel => 'C0B5WNUL6A0'
+    )
+    ORDER BY ts DESC
+    LIMIT 10
     """
 
     github_results = run_coral_query(github_query)
+    repo_results = run_coral_query(repo_query)
     slack_results = run_coral_query(slack_query)
 
     query_data = f"""
-GITHUB ISSUES:
+SECURITY ADVISORIES
 {github_results}
 
-SLACK CHANNELS:
+REPOSITORY MONITORING
+{repo_results}
+
+SLACK INCIDENT FEED
 {slack_results}
 """
 
-# ---------------- METRICS ---------------- #
+# =========================================================
+# ANALYSIS
+# =========================================================
 
-col1, col2, col3 = st.columns(3)
+incident_keywords = [
+    "critical",
+    "error",
+    "failure",
+    "incident",
+    "rollback",
+    "authentication",
+    "unauthorized",
+    "breach",
+    "exploit",
+    "latency",
+    "attack",
+    "outage"
+]
 
-if data_mode == "Security Advisories":
+incident_mentions = 0
 
-    critical_count = query_data.lower().count("critical")
-    high_count = query_data.lower().count("high")
-    medium_count = query_data.lower().count("medium")
+for keyword in incident_keywords:
+    incident_mentions += query_data.lower().count(keyword)
 
-    col1.metric("Critical Findings", critical_count)
-    col2.metric("High Findings", high_count)
-    col3.metric("Medium Findings", medium_count)
+critical_count = query_data.lower().count("critical")
+high_count = query_data.lower().count("high")
 
-elif data_mode == "GitHub Issues":
+risk_score = calculate_risk_score(
+    incident_mentions,
+    critical_count,
+    high_count
+)
 
-    open_count = query_data.lower().count("open")
-    closed_count = query_data.lower().count("closed")
+correlation_confidence = min(
+    55 + incident_mentions * 4,
+    97
+)
 
-    col1.metric("Open Issues", open_count)
-    col2.metric("Closed Issues", closed_count)
-    col3.metric("Total Records", 5)
+active_signals = (
+    incident_mentions
+    + critical_count
+    + high_count
+)
 
-elif data_mode == "Slack Intelligence":
+# =========================================================
+# RISK LEVEL
+# =========================================================
 
-    archived_count = query_data.lower().count("true")
-    active_count = query_data.lower().count("false")
+if risk_score >= 80:
 
-    col1.metric("Archived Channels", archived_count)
-    col2.metric("Active Channels", active_count)
-    col3.metric("Total Channels", 5)
+    risk_level = "CRITICAL"
+    risk_color = "#ff4b4b"
+
+elif risk_score >= 45:
+
+    risk_level = "HIGH"
+    risk_color = "#ff944d"
+
+elif risk_score >= 25:
+
+    risk_level = "ELEVATED"
+    risk_color = "#D6A84A"
 
 else:
 
-    issue_count = query_data.lower().count("open")
-    channel_count = query_data.lower().count("false")
+    risk_level = "NOMINAL"
+    risk_color = "#4CAF50"
 
-    col1.metric("Operational Issues", issue_count)
-    col2.metric("Active Channels", channel_count)
-    col3.metric("Correlation Mode", "ON")
+# =========================================================
+# METRICS
+# =========================================================
 
-# ---------------- DATA DISPLAY ---------------- #
+m1, m2, m3, m4 = st.columns(4)
 
-st.write(f"## {data_mode}")
+with m1:
 
-st.code(query_data, language="text")
+    st.markdown(f"""
+    <div class="rasmal-card">
 
-# ---------------- EXECUTIVE DASHBOARD ---------------- #
+    <div class="section-title">
+    RISK INDEX
+    </div>
 
-left_col, right_col = st.columns([1, 1])
+    <div style="
+        font-size:46px;
+        font-weight:800;
+        color:{risk_color};
+    ">
+    {risk_level}
+    </div>
 
-# ---------------- LEFT SIDE ---------------- #
+    </div>
+    """, unsafe_allow_html=True)
 
-with left_col:
+with m2:
 
-    st.write("## 📊 Intelligence Overview")
+    st.markdown(f"""
+    <div class="rasmal-card">
 
-    if data_mode == "Security Advisories":
+    <div class="section-title">
+    CORRELATION CONFIDENCE
+    </div>
 
-        chart_data = pd.DataFrame({
-            "Category": ["Critical", "High", "Medium"],
-            "Count": [
-                query_data.lower().count("critical"),
-                query_data.lower().count("high"),
-                query_data.lower().count("medium")
-            ]
-        })
+    <div style="
+        font-size:46px;
+        font-weight:800;
+        color:#E6C07B;
+    ">
+    {correlation_confidence}%
+    </div>
 
-        chart_title = "Security Severity Distribution"
+    </div>
+    """, unsafe_allow_html=True)
 
-    elif data_mode == "GitHub Issues":
+with m3:
 
-        chart_data = pd.DataFrame({
-            "Category": ["Open", "Closed"],
-            "Count": [
-                query_data.lower().count("open"),
-                query_data.lower().count("closed")
-            ]
-        })
+    st.markdown(f"""
+    <div class="rasmal-card">
 
-        chart_title = "GitHub Issue Status"
+    <div class="section-title">
+    ACTIVE SIGNALS
+    </div>
 
-    elif data_mode == "Slack Intelligence":
+    <div style="
+        font-size:46px;
+        font-weight:800;
+        color:#D6A84A;
+    ">
+    {active_signals}
+    </div>
 
-        chart_data = pd.DataFrame({
-            "Category": ["Active Channels", "Archived Channels"],
-            "Count": [
-                query_data.lower().count("false"),
-                query_data.lower().count("true")
-            ]
-        })
+    </div>
+    """, unsafe_allow_html=True)
 
-        chart_title = "Slack Workspace Status"
+with m4:
+
+    system_status = (
+        "OBSERVING"
+        if risk_level in ["CRITICAL", "HIGH"]
+        else "STABLE"
+    )
+
+    status_color = (
+        "#ff944d"
+        if system_status == "OBSERVING"
+        else "#4CAF50"
+    )
+
+    st.markdown(f"""
+    <div class="rasmal-card">
+
+    <div class="section-title">
+    SYSTEM STATUS
+    </div>
+
+    <div style="
+        font-size:40px;
+        font-weight:800;
+        color:{status_color};
+    ">
+    {system_status}
+    </div>
+
+    </div>
+    """, unsafe_allow_html=True)
+
+# =========================================================
+# TIMELINE
+# =========================================================
+
+st.markdown("""
+<div class="section-title">
+AI CORRELATION TIMELINE
+</div>
+""", unsafe_allow_html=True)
+
+dynamic_logs = generate_dynamic_logs(query_data)
+
+log_html = ""
+
+for log in dynamic_logs:
+
+    if log["severity"] == "critical":
+        color = "#ff4b4b"
+
+    elif log["severity"] == "warning":
+        color = "#ff944d"
 
     else:
+        color = "#D6A84A"
 
-        chart_data = pd.DataFrame({
-            "Category": ["Operational Issues", "Slack Channels"],
-            "Count": [
-                query_data.lower().count("open"),
-                query_data.lower().count("false")
-            ]
-        })
+    log_html += f"""
+    <div style='margin-bottom:16px;'>
 
-        chart_title = "Incident Correlation Signals"
+    <span style='color:#666'>
+    [{log["time"]}]
+    </span>
 
-    fig = px.pie(
-        chart_data,
-        names="Category",
-        values="Count",
-        hole=0.55,
-        title=chart_title
-    )
+    <span style='color:{color}; font-weight:700'>
+    {log["message"]}
+    </span>
 
-    fig.update_layout(
-        paper_bgcolor="#0E1117",
-        plot_bgcolor="#0E1117",
-        font_color="white",
-        title_font_size=22,
-        legend_font_size=14,
-        height=420
-    )
+    </div>
+    """
 
-    st.plotly_chart(
-        fig,
-        use_container_width=True
-    )
-
-# ---------------- RIGHT SIDE ---------------- #
-
-with right_col:
-
-    enable_ai_summary = st.toggle(
-        "Enable AI Executive Summary",
-        value=False
-    )
-
-    if enable_ai_summary:
-
-        st.write("## 🚨 Executive Summary")
-
-        summary_prompt = f"""
-        You are an enterprise observability analyst.
-
-        Analyze the following intelligence data and provide
-        a short executive summary for leadership.
-
-        Intelligence Type:
-        {data_mode}
-
-        Data:
-        {query_data}
-
-        Return:
-        - Overall Risk Level
-        - Key Operational Concern
-        - Recommended Immediate Action
-
-        Keep it concise and professional.
-        """
-
-        try:
-
-            summary_completion = client.chat.completions.create(
-                messages=[
-                    {
-                        "role": "user",
-                        "content": summary_prompt,
-                    }
-                ],
-                model="llama-3.3-70b-versatile",
-            )
-
-            executive_summary = (
-                summary_completion
-                .choices[0]
-                .message.content
-            )
-
-            st.info(executive_summary)
-
-            # ---------------- RISK STATUS ---------------- #
-
-            risk_text = executive_summary.upper()
-
-            st.write("## 🚦 Risk Status")
-
-            if "CRITICAL" in risk_text:
-
-                st.error("🔴 CRITICAL RISK DETECTED")
-
-            elif "HIGH" in risk_text:
-
-                st.warning("🟠 HIGH RISK DETECTED")
-
-            elif "MEDIUM" in risk_text:
-
-                st.warning("🟡 MEDIUM RISK DETECTED")
-
-            else:
-
-                st.success("🟢 LOW RISK DETECTED")
-
-        except Exception as e:
-
-            st.error(f"Executive Summary Error: {e}")
-
-# ---------------- USER INPUT ---------------- #
-
-user_input = st.text_input(
-    "Ask an intelligence question..."
+st.markdown(
+    f"""
+    <div class="log-box">
+    {log_html}
+    </div>
+    """,
+    unsafe_allow_html=True
 )
 
-# ---------------- AI ANALYSIS ---------------- #
+st.markdown("<br>", unsafe_allow_html=True)
 
-if st.button("Analyze Intelligence"):
+# =========================================================
+# RAW DATA
+# =========================================================
+
+with st.expander("View Intelligence Data"):
+
+    st.code(query_data, language="text")
+
+# =========================================================
+# EXECUTIVE SUMMARY
+# =========================================================
+
+enable_summary = st.toggle(
+    "Enable Executive Intelligence Summary",
+    value=False
+)
+
+if enable_summary:
+
+    st.markdown("""
+    <div class="section-title">
+    EXECUTIVE INTELLIGENCE SUMMARY
+    </div>
+    """, unsafe_allow_html=True)
+
+    prompt = f"""
+    You are RasmalAI,
+    an elite cyber intelligence platform.
+
+    Operational Intelligence:
+    {query_data}
+
+    Risk Level:
+    {risk_level}
+
+    Correlation Confidence:
+    {correlation_confidence}
+
+    Return ONLY in this exact structure:
+
+    THREAT_LEVEL:
+    (one word)
+
+    PRIMARY_CONCERN:
+    (1 concise sentence)
+
+    IMPACT:
+    (1 concise operational impact sentence)
+
+    IMMEDIATE_ACTIONS:
+    - short bullet
+    - short bullet
+    - short bullet
+
+    Keep concise.
+    Tactical.
+    Enterprise-grade.
+    No markdown formatting.
+    """
+
+    try:
+
+        completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            model="llama-3.3-70b-versatile"
+        )
+
+        summary = (
+            completion
+            .choices[0]
+            .message
+            .content
+        )
+
+        summary = summary.replace("**", "")
+
+        lines = summary.splitlines()
+
+        threat_level = ""
+        primary_concern = ""
+        impact = ""
+        actions = []
+
+        for line in lines:
+
+            line = line.strip()
+
+            if line.startswith("THREAT_LEVEL:"):
+
+                threat_level = (
+                    line.replace(
+                        "THREAT_LEVEL:",
+                        ""
+                    ).strip()
+                )
+
+            elif line.startswith("PRIMARY_CONCERN:"):
+
+                primary_concern = (
+                    line.replace(
+                        "PRIMARY_CONCERN:",
+                        ""
+                    ).strip()
+                )
+
+            elif line.startswith("IMPACT:"):
+
+                impact = (
+                    line.replace(
+                        "IMPACT:",
+                        ""
+                    ).strip()
+                )
+
+            elif line.startswith("-"):
+
+                actions.append(
+                    line.replace("-", "").strip()
+                )
+
+        if "CRITICAL" in threat_level.upper():
+
+            severity_class = "summary-critical"
+            severity_color = "#ff4b4b"
+
+        elif "HIGH" in threat_level.upper():
+
+            severity_class = "summary-high"
+            severity_color = "#ff944d"
+
+        elif "ELEVATED" in threat_level.upper():
+
+            severity_class = "summary-elevated"
+            severity_color = "#D6A84A"
+
+        else:
+
+            severity_class = "summary-nominal"
+            severity_color = "#4CAF50"
+
+        st.markdown(f"""
+        <div class="summary-card {severity_class}">
+
+        <div class="summary-title">
+        THREAT SEVERITY
+        </div>
+
+        <div class="summary-value"
+        style="color:{severity_color};">
+        {threat_level}
+        </div>
+
+        <div class="summary-title">
+        PRIMARY CONCERN
+        </div>
+
+        <div class="summary-text">
+        {primary_concern}
+        </div>
+
+        <br>
+
+        <div class="summary-title">
+        OPERATIONAL IMPACT
+        </div>
+
+        <div class="summary-text">
+        {impact}
+        </div>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("""
+        <div class="section-title">
+        IMMEDIATE RESPONSE ACTIONS
+        </div>
+        """, unsafe_allow_html=True)
+
+        for idx, action in enumerate(actions):
+
+            st.markdown(f"""
+            <div class="action-card">
+
+            <div class="priority-tag">
+            PRIORITY {idx + 1}
+            </div>
+
+            <div class="summary-text">
+            {action}
+            </div>
+
+            </div>
+            """, unsafe_allow_html=True)
+
+    except Exception as e:
+
+        st.error(f"Summary Error: {e}")
+
+# =========================================================
+# ANALYSIS ENGINE
+# =========================================================
+
+st.markdown("""
+<div class="section-title">
+RASMALAI ANALYSIS ENGINE
+</div>
+""", unsafe_allow_html=True)
+
+user_input = st.text_input(
+    "Ask RasmalAI about operational intelligence..."
+)
+
+if st.button("Run Intelligence Analysis"):
 
     if user_input.strip() == "":
 
@@ -390,91 +1102,59 @@ if st.button("Analyze Intelligence"):
 
     else:
 
-        if data_mode == "Incident Correlation":
+        prompt = f"""
+        You are RasmalAI,
+        an elite AI security intelligence platform.
 
-            prompt = f"""
-            You are an enterprise incident intelligence analyst.
+        Operational Intelligence:
+        {query_data}
 
-            Correlate GitHub operational issues with Slack
-            workspace intelligence and identify possible
-            operational or security incidents.
+        Risk Level:
+        {risk_level}
 
-            Correlated Data:
-            {query_data}
+        Correlation Confidence:
+        {correlation_confidence}
 
-            User Question:
-            {user_input}
+        User Query:
+        {user_input}
 
-            Return response in this format:
+        Return:
+        - Threat Severity
+        - Correlated Findings
+        - Risks
+        - Recommended Actions
 
-            Incident Severity:
-            (LOW / MEDIUM / HIGH / CRITICAL)
+        Tactical and enterprise-focused.
+        """
 
-            Correlated Findings:
-            - bullet points
-
-            Possible Risks:
-            - bullet points
-
-            Recommended Actions:
-            - bullet points
-
-            Keep the response concise and enterprise-focused.
-            """
-
-        else:
-
-            prompt = f"""
-            You are an enterprise cybersecurity analyst.
-
-            Analyze the following enterprise intelligence data.
-
-            Intelligence Type:
-            {data_mode}
-
-            Retrieved Data:
-            {query_data}
-
-            User Question:
-            {user_input}
-
-            Return response in this format:
-
-            Threat Level:
-            (LOW / MEDIUM / HIGH / CRITICAL)
-
-            Key Findings:
-            - bullet points
-
-            Risks Detected:
-            - bullet points
-
-            Recommended Actions:
-            - bullet points
-
-            Keep the response concise and professional.
-            """
-
-        # Send prompt to Groq
-        chat_completion = client.chat.completions.create(
+        completion = client.chat.completions.create(
             messages=[
                 {
                     "role": "user",
-                    "content": prompt,
+                    "content": prompt
                 }
             ],
-            model="llama-3.3-70b-versatile",
+            model="llama-3.3-70b-versatile"
         )
 
-        response = chat_completion.choices[0].message.content
+        response = (
+            completion
+            .choices[0]
+            .message
+            .content
+        )
 
-        st.write("## 🤖 AI Intelligence Analysis")
+        st.markdown("""
+        <div class="section-title">
+        ANALYSIS RESPONSE
+        </div>
+        """, unsafe_allow_html=True)
 
-        if "CRITICAL" in response.upper():
+        if risk_level == "CRITICAL":
 
             st.error(response)
 
-        elif "HIGH" in response.upper():
+        elif risk_level in ["HIGH", "ELEVATED"]:
 
             st.warning(response)
 
