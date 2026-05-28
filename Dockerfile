@@ -6,6 +6,6 @@ RUN curl -L https://github.com/withcoral/coral/releases/download/v0.4.1/coral-x8
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
-RUN mkdir -p /root/.config/coral && cp config.toml /root/.config/coral/config.toml
+RUN chmod +x start.sh
 EXPOSE 8501
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["bash", "start.sh"]
