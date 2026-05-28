@@ -11,6 +11,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+RUN coral source add github || true
+RUN coral source add slack || true
 ENV GITHUB_TOKEN=${GITHUB_TOKEN}
 ENV SLACK_TOKEN=${SLACK_TOKEN}
 ENV GROQ_API_KEY=${GROQ_API_KEY}
